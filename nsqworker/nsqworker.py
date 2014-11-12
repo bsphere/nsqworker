@@ -9,7 +9,7 @@ from tornado.concurrent import run_on_executor
 
 
 class ThreadWorker:
-    def __init__(self, message_handler, exception_handler=None, concurrency=1, timeout=60, **kwargs):
+    def __init__(self, message_handler=None, exception_handler=None, concurrency=1, timeout=60, **kwargs):
         self.io_loop = ioloop.IOLoop.instance()
         self.executor = ThreadPoolExecutor(concurrency)
         self.concurrency = concurrency

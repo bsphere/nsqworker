@@ -19,7 +19,8 @@ def handle_exc(message, e):
   traceback.print_exc()
   message.requeue()
 
-w.nsqworker.ThreadWorker(process_message, exception_handler=handle_exc, concurrency=5, ...)
+w.nsqworker.ThreadWorker(message_handler=process_message,
+                         exception_handler=handle_exc, concurrency=5, ...)
 
 w.start()
 ```
