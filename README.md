@@ -4,7 +4,12 @@ nsqworker - an async task worker for NSQ
 Currently only a threaded worker is supported.
 it handles NSQ messaging with the official Python/Tornado library and executes a blocking message handler function in an executor thread pool.
 
-Usage:
+Installation
+------------
+`pip install git+https://github.com/bsphere/nsqworker.git`
+
+Usage
+-----
 ```
 import time
 import nsqworker
