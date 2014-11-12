@@ -12,7 +12,7 @@ Usage
 -----
 ```
 import time
-import nsqworker
+from nsqworker import nsqworker
 
 
 def process_message(message):
@@ -24,8 +24,8 @@ def handle_exc(message, e):
   traceback.print_exc()
   message.requeue()
 
-w.nsqworker.ThreadWorker(message_handler=process_message,
-                         exception_handler=handle_exc, concurrency=5, ...)
+w = nsqworker.ThreadWorker(message_handler=process_message,
+                           exception_handler=handle_exc, concurrency=5, ...)
 
 w.start()
 ```
