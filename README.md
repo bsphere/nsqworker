@@ -2,7 +2,10 @@ nsqworker - an async task worker for NSQ
 ----------------------------------------
 
 Currently only a threaded worker is supported.
-it handles NSQ messaging with the official Python/Tornado library and executes a blocking message handler function in an executor thread pool.
+it handles [NSQ](http://nsq.io) messaging with the official Python/(Tornado)[http://tornadoweb.org] library and executes a blocking message handler function in an executor thread pool.
+
+The motivation behind this package is to replace [Celery](http://celeryproject.org)/RabbitMQ worker processes which perform long running tasks with [NSQ](http://nsq.io).
+
 
 Installation
 ------------
