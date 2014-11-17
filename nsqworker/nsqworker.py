@@ -9,14 +9,13 @@ from tornado.concurrent import run_on_executor
 
 
 class ThreadWorker:
-    def __init__(self, message_handler=None, exception_handler=None, concurrency=1, timeout=60, **kwargs):
+    def __init__(self, message_handler=None, exception_handler=None, concurrency=1, **kwargs):
         self.io_loop = ioloop.IOLoop.instance()
         self.executor = ThreadPoolExecutor(concurrency)
         self.concurrency = concurrency
         self.kwargs = kwargs
         self.message_handler = message_handler
         self.exception_handler = exception_handler
-        self.timeout = timeout
 
         self.logger = logging.getLogger("ThreadWorker")
         if not self.logger.handlers:
@@ -60,12 +59,14 @@ class ThreadWorker:
 
         self.logger.debug("Finished handling message %s", message.id)
 
-    def start(self):
-        self.logger.info("Listening for NSQD messages, handling message with %d threads", self.concurrency)
+    def subscribe_worker(self):
+        self.logger.info("Added an handler for NSQD messages on topic '%s', channel '%s'",
+                         self.kwargs["topic"], self.kwargs["channel"])
+
+        self.logger.info("handling messages with %d threads", self.concurrency)
+
         kwargs = self.kwargs
         kwargs["message_handler"] = self._message_handler
         kwargs["max_in_flight"] = self.concurrency
 
         nsq.Reader(**kwargs)
-
-        nsq.run()

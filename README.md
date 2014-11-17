@@ -14,6 +14,7 @@ Installation
 Usage
 -----
 ```
+import nsq
 import time
 from nsqworker import nsqworker
 
@@ -30,7 +31,9 @@ def handle_exc(message, e):
 w = nsqworker.ThreadWorker(message_handler=process_message,
                            exception_handler=handle_exc, concurrency=5, ...)
 
-w.start()
+w.subscribe_reader()
+
+nsq.run()
 ```
 
 The arguments for the `ThreadWorker` constructor are a synchronous, blocking function that handles messages, concurrency, an optional exception_handler and all other arguments for the official [NSQ](http://nsq.io) Python library - [pynsq](https://pynsq.readthedocs.org).
@@ -40,6 +43,8 @@ The arguments for the `ThreadWorker` constructor are a synchronous, blocking fun
 * The worker will periodically call `message.touch()` every 30s for long running tasks so they won't timeout by nsqd.
 
 * The exception handler is called with a message and an exception as the arguments in case it was given during the worker's initialization and an exception is raised while processing a message.
+
+* Multiple readers can be added for handing messages from multiple topics and channels.
 
 * TODO - add definable timeout for message handling which invokes the exception_handler function.
 
