@@ -26,7 +26,7 @@ def process_message(message):
 
 def handle_exc(message, e):
   traceback.print_exc()
-  message.requeue()
+  w.io_loop.add_callback(message.requeue)
 
 w = nsqworker.ThreadWorker(message_handler=process_message,
                            exception_handler=handle_exc, concurrency=5, ...)
@@ -45,6 +45,8 @@ The arguments for the `ThreadWorker` constructor are a synchronous, blocking fun
 * The exception handler is called with a message and an exception as the arguments in case it was given during the worker's initialization and an exception is raised while processing a message.
 
 * Multiple readers can be added for handing messages from multiple topics and channels.
+
+* Any interactions with NSQ from within a thread worker, such as `message.requeue()`, `message.finish()` and publishing message __must be added as callback to the ioloop__
 
 * TODO - add definable timeout for message handling which invokes the exception_handler function.
 
