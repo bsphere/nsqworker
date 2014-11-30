@@ -5,17 +5,19 @@ import nsq
 from tornado import gen
 from tornado import ioloop
 from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError
 from tornado.concurrent import run_on_executor
 
 
 class ThreadWorker:
-    def __init__(self, message_handler=None, exception_handler=None, concurrency=1, **kwargs):
+    def __init__(self, message_handler=None, exception_handler=None, concurrency=1, timeout=None, **kwargs):
         self.io_loop = ioloop.IOLoop.instance()
         self.executor = ThreadPoolExecutor(concurrency)
         self.concurrency = concurrency
         self.kwargs = kwargs
         self.message_handler = message_handler
         self.exception_handler = exception_handler
+        self.timeout = timeout
 
         self.logger = logging.getLogger("ThreadWorker")
         if not self.logger.handlers:
@@ -46,7 +48,23 @@ class ThreadWorker:
         p.start()
 
         try:
-            result = yield self._run_threaded_handler(message)
+            result = self._run_threaded_handler(message)
+
+            try:
+                result.exception(timeout=self.timeout)
+                yield result
+
+                e = result.exception()
+                if e is not None:
+                    raise e
+            except TimeoutError as e:
+                self.logger.error("Message handler for message %s exceeded timeout", message.id)
+                if self.exception_handler is not None:
+                    self.exception_handler(message, e)
+
+                result.cancel()
+                yield result
+
         except Exception as e:
             self.logger.debug("Message handler for message %s raised an exception", message.id)
             if self.exception_handler is not None:

@@ -48,6 +48,6 @@ The arguments for the `ThreadWorker` constructor are a synchronous, blocking fun
 
 * Any interactions with NSQ from within a thread worker, such as `message.requeue()`, `message.finish()` and publishing message __must be added as callback to the ioloop__
 
-* TODO - add definable timeout for message handling which invokes the exception_handler function.
+* An optional `timeout=<seconds>` can be added to the worker constructor, if it is defined, after the defined timeout the optional exception handler will invoked with an `concurrent.futures.TimeoutError`. Due to `concurrent.futures.ThreadPoolExecutor` limitations it is impossible to cancel the running executor thread and it may continue running even after the timeout exception was raised.
 
 * TODO - message de-duping.
