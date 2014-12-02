@@ -1,3 +1,4 @@
+import argparse
 import logging
 import sys
 
@@ -21,14 +22,22 @@ class ThreadWorker:
 
         self.logger = logging.getLogger("ThreadWorker")
         if not self.logger.handlers:
+            parser = argparse.ArgumentParser()
+            parser.add_argument('--loglevel', nargs='?', help='log level', default='INFO')
+            args = parser.parse_args()
+
+            level = getattr(logging, args.loglevel.upper())
+            if not isinstance(level, int):
+                raise ValueError('Invalid log level: %s' % args.loglevel)
+
             formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
             handler = logging.StreamHandler(stream=sys.stdout)
             handler.setFormatter(formatter)
-            handler.setLevel(logging.DEBUG)
+            handler.setLevel(level)
 
             self.logger.addHandler(handler)
-            self.logger.setLevel(logging.DEBUG)
+            self.logger.setLevel(level)
             self.logger.propagate = 0
 
     @run_on_executor
