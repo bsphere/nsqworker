@@ -57,7 +57,7 @@ class ThreadWorker:
         p = ioloop.PeriodicCallback(touch, 30000)
         p.start()
 
-        def timeout():
+        def timeout_handler():
             p.stop()
 
             error = \
@@ -69,8 +69,9 @@ class ThreadWorker:
             if self.exception_handler is not None:
                 self.exception_handler(message, TimeoutError(error))
 
+        timeout = None
         if self.timeout is not None:
-            self.io_loop.call_later(self.timeout, timeout)
+            timeout = self.io_loop.call_later(self.timeout, timeout_handler)
 
         try:
             result = self._run_threaded_handler(message)
@@ -82,6 +83,9 @@ class ThreadWorker:
                 self.exception_handler(message, e)
 
         p.stop()
+
+        if timeout is not None:
+            self.io_loop.remove_timeout(timeout)
 
         if not message.has_responded():
             message.finish()
